@@ -26,7 +26,7 @@ long_description = read('README.md')
 
 setup(name='kronos_pipeliner',
       version=get_version(),
-      description='A workflow assembler for cancer genome analytics and informatics',
+      description='A workflow assembler for genome analytics and informatics',
       long_description=long_description,
       classifiers=[
         "Development Status :: 4 - Beta",
