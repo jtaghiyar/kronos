@@ -35,8 +35,7 @@ pip install kronos_pipeliner
 
 ## Docs
 
-Please refer to kronos documentation here:
-<>
+Please refer to kronos documentation here: <http://kronos.readthedocs.org/en/latest/>
 
 ## Contact
 Contact us via email:
