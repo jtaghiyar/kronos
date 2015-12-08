@@ -7,8 +7,7 @@ Created on Jul 10, 2014
 import codecs
 import os
 import re
-
-from distutils.core import setup
+from setuptools import setup
 
 def read(*paths):
     here = os.path.dirname(os.path.abspath(__file__))
@@ -23,12 +22,12 @@ def get_version():
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
-# long_description = read('README.md')
+long_description = read('README.md')
 
 setup(name='kronos_pipeliner',
       version=get_version(),
       description='A workflow assembler for cancer genome analytics and informatics',
-#       long_description=long_description,
+      long_description=long_description,
       classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
@@ -43,6 +42,7 @@ setup(name='kronos_pipeliner',
       url='https://github.com/jtaghiyar/kronos',
       license='MIT',
       packages=['kronos', 'templates'],
-      scripts=['scripts/kronos'],
+      entry_points={'console_scripts':['kronos=kronos:main']},
+      install_requires = ['pyyaml>=3.11', 'ruffus>=2.4.1,<2.6.3']
      )
 
