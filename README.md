@@ -1,9 +1,5 @@
 # Kronos 
 
-## Version
-
-### 2.0.1
-
 ## About
 
 A workflow assembler for cancer genome analytics and informatics.
