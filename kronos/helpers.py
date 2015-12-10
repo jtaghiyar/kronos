@@ -354,6 +354,7 @@ class Configurer(object):
                 if len(header) != len(l):
                     raise Exception("too many/few items on line %s" % l)
                 for k,v in zip(header[1:], l[1:]):
+                    v = evaluate_variable(v)
                     t.add_path(t.dict2tree({l[0]:{k:v}}))
                 l = infile.readline()
             d = {'__SAMPLES__': t.todict()}
@@ -387,7 +388,8 @@ class Configurer(object):
                 if l[0] == '__OPTIONS__':
                     l = infile.readline()
                     continue
-                t.add_path(t.dict2tree({l[0]:{l[1]:l[2]}}))
+                v = evaluate_variable(l[2])
+                t.add_path(t.dict2tree({l[0]:{l[1]:v}}))
                 l = infile.readline()
             d = t.todict()
             self.config_dict = self.update_config_dict(d)
