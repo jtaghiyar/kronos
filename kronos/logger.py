@@ -89,7 +89,7 @@ class PipelineLogger(object):
             print message
 
 
-    def log_pipeline_header(self, log, args, pipeline_name, run_id, factory_version):
+    def log_pipeline_header(self, log, args, pipeline_name, run_id, kronos_version):
         '''
         Logs general run information
         '''
@@ -100,7 +100,7 @@ class PipelineLogger(object):
         self.log_info(log, hdr_break)
         self.log_info(log, ' PIPELINE RUN INFO')
         self.log_info(log, hdr_break)
-        self.log_info(log, 'Pipeline Factory version: ' + factory_version)
+        self.log_info(log, 'Kronos version: ' + kronos_version)
         self.log_info(log, 'pipeline name: ' + pipeline_name)
         self.log_info(log, 'run id: ' + run_id)
         self.log_info(log, 'launch date: ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))

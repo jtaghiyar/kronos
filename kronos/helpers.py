@@ -307,7 +307,7 @@ class ComponentParser(object):
 class Configurer(object):
     
     """
-    Make/update a yaml config file based on the requirements of the pipeline factory.
+    Make/update a yaml config file.
     """
     
     def __init__(self, config_file=None):

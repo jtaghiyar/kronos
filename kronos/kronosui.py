@@ -155,7 +155,7 @@ parser_run_pipeline.add_argument('-y', '--config_file',
 
 # ## test subparser
 # parser_test = subparsers.add_parser('test',
-#                                     help="test the pipeline factory installation by running tests included in the package")
+#                                     help="test kronos installation by running tests included in the package")
 # 
 # parser_test.add_argument('-i', '--python_installation', type=str,
 #                          default='python',
