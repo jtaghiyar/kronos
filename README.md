@@ -4,6 +4,17 @@
 
 A workflow assembler for cancer genome analytics and informatics.
 
+## Documentation
+
+Please refer to kronos documentation here: <http://kronos.readthedocs.org/en/latest/>
+
+## Installation
+
+Using pip:
+
+```
+pip install kronos_pipeliner
+```
 
 ## Dependencies
 
@@ -21,21 +32,10 @@ For running on a cluster using `-b/--job_scheduler drmaa` you will need to insta
 
 * [drmaa-python == 0.7.6](http://drmaa-python.github.io)
 
-## Installation
+## Questions and feedback
 
-Using pip:
-
-```
-pip install kronos_pipeliner
-```
-
-## Docs
-
-Please refer to kronos documentation here: <http://kronos.readthedocs.org/en/latest/>
+Please use our [kronos google group](https://groups.google.com/forum/#!forum/kronos_pipeliner).
 
 ## Contact
-Contact us via email:
-Jafar Taghiyar <jafar.taghiyar@gmail.com>
 
-Or give us a feedback in our kronos google group:
-<https://groups.google.com/forum/#!forum/kronos_pipeliner>
+Jafar Taghiyar <jafar.taghiyar@gmail.com>.
