@@ -2,7 +2,7 @@
 
 ## About
 
-A workflow assembler for cancer genome analytics and informatics.
+A workflow assembler for genome analytics and informatics.
 
 ## Documentation
 
