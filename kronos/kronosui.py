@@ -9,7 +9,7 @@ import os
 from .kronos_version import kronos_version
  
 parser = argparse.ArgumentParser(description="""Kronos: a workflow assembler
-                                             for cancer genome analytics and
+                                             for genome analytics and
                                              informatics""")
 
 subparsers = parser.add_subparsers(dest='subparser_name')
@@ -24,6 +24,7 @@ parser.add_argument('-v', '--version',
 
 ## make_component subparser
 parser_make_component = subparsers.add_parser('make_component',
+                                              description="make a template component",
                                               help="make a template component")
 
 parser_make_component.add_argument('component_name',
@@ -31,7 +32,8 @@ parser_make_component.add_argument('component_name',
 
 ## make_config subparser
 parser_make_config = subparsers.add_parser('make_config', 
-                                           help="make a config file")
+                                           description="make a template config file",
+                                           help="make a template config file")
 
 parser_make_config.add_argument('components',
                                 nargs='+',
@@ -43,7 +45,10 @@ parser_make_config.add_argument('-o', '--output_filename',
 
 ## update_config subparser
 parser_update_config = subparsers.add_parser('update_config',
-                                              help="copy the fields of old config file to new config file")
+                                             description="""update the fields of a config
+                                             file based on the ones from another one""",
+                                              help="""update the fields of a config
+                                             file based on the ones from another one""")
 
 parser_update_config.add_argument('config_files',
                                    nargs='+',
@@ -57,7 +62,8 @@ parser_update_config.add_argument('-o', '--output_filename',
 
 ## init_pipeline subparser 
 parser_init_pipeline = subparsers.add_parser('init',
-                                             help="initialize a pipeline from the given config file")
+                                             description="initialize a pipeline from a given config file",
+                                             help="initialize a pipeline from a given config file")
 
 parser_init_pipeline.add_argument('-e', '--pipeline_name',
                                   required=True,
@@ -80,6 +86,8 @@ parser_init_pipeline.add_argument('-y', '--config_file',
 
 ## run_pipeline subparser
 parser_run_pipeline = subparsers.add_parser('run',
+                                            description="""run kronos-made pipelines 
+                                            with optional initialization""",
                                             help="""run kronos-made pipelines 
                                             with optional initialization""")
 
@@ -153,8 +161,14 @@ parser_run_pipeline.add_argument('-y', '--config_file',
                                  metavar='FILE',
                                  help="path to the config_file.yaml")
 
+parser_run_pipeline.add_argument('--no_prefix',
+                                  default=False,
+                                  action='store_true',
+                                  help="""switch off the prefix that is added to all the
+                                          output files.""")
 # ## test subparser
 # parser_test = subparsers.add_parser('test',
+#                                     description="test kronos installation by running tests included in the package",
 #                                     help="test kronos installation by running tests included in the package")
 # 
 # parser_test.add_argument('-i', '--python_installation', type=str,
