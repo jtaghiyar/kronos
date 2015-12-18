@@ -43,6 +43,6 @@ setup(name='kronos_pipeliner',
       license='MIT',
       packages=['kronos', 'templates'],
       entry_points={'console_scripts':['kronos=kronos:main']},
-      install_requires = ['pyyaml>=3.11', 'ruffus==2.4.1,<2.6.3']
+      install_requires = ['pyyaml>=3.11', 'ruffus==2.4.1']
      )
 
