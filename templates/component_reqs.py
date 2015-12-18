@@ -8,9 +8,9 @@ They are marked with keyword 'TODO'.
 ## TODO: here goes the list of the environment variables, if any,
 ## required to export for the component to function properly.
 env_vars = {
-# 			'env_var1' : ['value1', 'value2'],
-# 			'env_var2' : 'value3'
-			}
+#            'env_var1' : ['value1', 'value2'],
+#            'env_var2' : 'value3'
+           }
 
 ## TODO: here goes the max amount of the memory required. 
 memory = '5G'
@@ -21,8 +21,8 @@ parallel = False
 ## TODO: here goes the list of the required software/apps
 ## called by the component.  
 requirements = {
-# 				'python': '__REQUIRED__',
-				}
+#                'python': '__REQUIRED__',
+               }
 
 ## TODO: here goes the version of the component seed.
 seed_version = '0.99.0'
