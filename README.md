@@ -39,3 +39,13 @@ Please use our [kronos google group](https://groups.google.com/forum/#!forum/kro
 ## Contact
 
 Jafar Taghiyar <jafar.taghiyar@gmail.com>.
+
+## Change log
+
+### 2.0.4
+* removed the limitation on the number of simultaneous jobs/pipelines.
+* added ```--no_prefix``` back to the input options of ```run``` command. 
+* minor bug fixes.
+
+### 2.0.3
+First version released!
