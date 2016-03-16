@@ -42,6 +42,9 @@ Jafar Taghiyar <jafar.taghiyar@gmail.com>.
 
 ## Change log
 
+###2.1.0
+* Kronos now uses multithreading instead of multiprocessing.
+
 ### 2.0.4
 * removed the limitation on the number of simultaneous jobs/pipelines.
 * added ```--no_prefix``` back to the input options of ```run``` command. 
