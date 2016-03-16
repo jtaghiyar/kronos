@@ -462,7 +462,7 @@ class Plumber(object):
         self._print(comment="main body")
         self._print(message="try:")
         self._print(message="if not args.print_only:", tab=1)
-        self._print(message="ruffus.pipeline_run(__last_task___function, multiprocess=args.num_jobs, verbose=0)", tab=2)
+        self._print(message="ruffus.pipeline_run(__last_task___function, multithread=args.num_jobs, verbose=0)", tab=2)
         self._print(message="else:", tab=1)
         self._print(message="cwd = os.getcwd()", tab=2)
         self._print(message="os.chdir(rm.pipeline_dir)", tab=2)
