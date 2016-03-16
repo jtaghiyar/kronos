@@ -29,7 +29,7 @@ setup(name='kronos_pipeliner',
       description='A workflow assembler for genome analytics and informatics',
       long_description=long_description,
       classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
