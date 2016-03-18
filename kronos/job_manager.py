@@ -80,9 +80,7 @@ class DrmaaJobManager(object):
     def run_job(self, cmd, cmd_args="", mem='10G', h_vmem=None, ncpus=1, job_name=None):
         """submit a single job to the cluster and wait to finish."""
         if h_vmem is None:
-            mem = mem.upper()
-            m = int(mem.split('G')[0]) * 1.2
-            h_vmem = str(m) + 'G'
+            h_vmem = self._get_hvmem(mem)
             
         with self.drmaa.Session() as s:
             job = DrmaaJob(s, cmd, cmd_args, mem, h_vmem, ncpus, job_name,
@@ -174,7 +172,15 @@ class DrmaaJobManager(object):
 #             cmd = "qdel %s" % (job_id)
 #             os.system(cmd)
 
-
+    @staticmethod
+    def _get_hvmem(mem):
+        r = r"\d+.\d+|\d+"
+        m = re.findall(r, mem)[0]
+        s = re.split(r, mem)[1]
+        h_vmem = str(float(m) * 1.2) + s
+        return h_vmem
+    
+    
 class SgeJob(object):
     
     """
