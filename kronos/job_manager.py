@@ -244,9 +244,7 @@ class SgeJobManager(object):
                 job_name=None):
         """submit a single job to the cluster and wait to finish."""
         if h_vmem is None:
-            mem = mem.upper()
-            m = int(mem.split('G')[0]) * 1.2
-            h_vmem = str(m) + 'G'
+            h_vmem = self._get_hvmem(mem)
         
         if cmd_args and not isinstance(cmd_args, (list, tuple)):
             cmd_args = [cmd_args]
@@ -348,7 +346,15 @@ class SgeJobManager(object):
         job_id = int(m.strip().split()[2])
         return job_id
 
-
+    @staticmethod
+    def _get_hvmem(mem):
+        r = r"\d+.\d+|\d+"
+        m = re.findall(r, mem)[0]
+        s = re.split(r, mem)[1]
+        h_vmem = str(float(m) * 1.2) + s
+        return h_vmem
+    
+    
 class LocalJob(object):
     
     """
