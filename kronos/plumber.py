@@ -408,7 +408,8 @@ class Plumber(object):
             self._print(message="{0}_prefix = rm.get_filename_prefix('{0}')".format(t))
             self._print(message="{0}_task.update_comp_output_filenames({0}_prefix, rm.outputs_dir, args.no_prefix)".format(t))
             self._print(message="{0}_task.update_comp_env_vars({1})".format(t, e))
-            self._print(message="{0}_task.update_comp_reqs({1})".format(t, self.wf.general_section))
+#             self._print(message="{0}_task.update_comp_reqs({1})".format(t, self.wf.general_section))
+            self._print(message="{0}_task.update_comp_reqs({1})".format(t, self.wf.nodes[t].requirements))
             self._print(nl=True)
 
 

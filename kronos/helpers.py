@@ -489,6 +489,9 @@ class Configurer(object):
         section_tree['component']['output_files'] = cparser.output_files
         section_tree['component']['parameters'] = cparser.input_params
         
+        for k, v in cparser.requirements.iteritems():
+            section_tree['run']['requirements'][k] = v
+             
         if cparser.parallel:
             section_tree['run']['parallel_run'] = False
             section_tree['run']['parallel_params'] = []

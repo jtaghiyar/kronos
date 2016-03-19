@@ -143,6 +143,11 @@ class WorkFlowNode(object):
         return res.todict() if isinstance(res, Tree) else {}
     
     @property
+    def requirements(self):
+        res = self.properties['run']['requirements']
+        return res.todict() if isinstance(res, Tree) else {}
+    
+    @property
     def boilerplate(self):
         res = self.properties['run']['boilerplate']
         return res if not isinstance(res, Tree) else None
