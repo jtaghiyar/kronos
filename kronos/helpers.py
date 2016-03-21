@@ -8,6 +8,7 @@ import os
 import sys
 import warnings
 import yaml
+import getpass
 from datetime import datetime
 from ast import literal_eval
 from collections import OrderedDict, defaultdict
@@ -446,8 +447,8 @@ class Configurer(object):
         """create the config dict for PIPELINE_INFO section."""
         section_tree = OrderedTree()
         section_tree['name'] = None
-        section_tree['version'] = None
-        section_tree['author'] = None
+        section_tree['version'] = "0.99.0"
+        section_tree['author'] = getpass.getuser()
         section_tree['data_type'] = None
         section_tree['input_type'] = None
         section_tree['output_type'] = None
