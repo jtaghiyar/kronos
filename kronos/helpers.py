@@ -335,63 +335,75 @@ class Configurer(object):
         return temp_tree.todict()
 
     def update_sample_section(self, samfile):
-        """update __SAMPLES__ section using given samfile."""
-        ## parse samfile into a tree as:
-        ## {'__SAMPLES__': 
-        ##  id1:{col1:val11, col2:val21, ...},
-        ##  id2:{col1:val21, col2:val22, ...},
-        ##  ...}
-        ## and update seld.cofig_dict using this new tree
+        """update __SAMPLES__ section using given sample file.
+        
+        Parse samfile into a tree as:
+        '__SAMPLES__':
+        { 
+            id1:{col1:val11, col2:val21, ...},
+            id2:{col1:val21, col2:val22, ...},
+            ...
+        }
+        and update self.cofig_dict using this new tree.
+        """
+
+        t = Tree()        
         with open(samfile, 'r') as infile:
             header = infile.readline().strip().split('\t')
             if header[0] != "#sample_id":
                 errmsg = "the column name of the first column in input samples"
                 errmsg += " file should be '#sample_id'"
                 raise Exception(errmsg)
-            t = Tree()
-            l = infile.readline()
-            while l:
+
+            for l in infile:            
                 l = l.strip().split('\t')
-                if len(header) != len(l):
-                    raise Exception("too many/few items on line %s" % l)
+                if len(l) != len(header):
+                    raise Exception("too many/few items in line %s" % l)
+                
                 for k,v in zip(header[1:], l[1:]):
                     v = evaluate_variable(v)
                     t.add_path(t.dict2tree({l[0]:{k:v}}))
-                l = infile.readline()
+
             d = {'__SAMPLES__': t.todict()}
             self.config_dict = self.update_config_dict(d)                        
 
     def update_shared_section(self, setupfile):
-        """update __SHARED__ and __GENERAL__ sections using given samfile."""
-        ## parse the setup file into a tree as:
-        ## {'__GNERAL__':
-        ##  prog1: /path/to/program1,
-        ##  prog2: /path/to/program2,
-        ##  ...},
-        ##  '__SHARED__':
-        ##  param
-        ##    }
-        ## and update the self.config_dict using this new tree
+        """update __GENERAL__ sections using given setup file.
+        
+        Parse setupfile into a tree as:
+        '__SHARED__':
+        {
+            param1: value1,
+            param2: value2,
+            ...
+        }
+        and update the self.config_dict using this new tree.
+        """
+        
+        t = Tree()
         with open(setupfile, 'r') as infile:
             header = infile.readline().strip().split('\t')
             if header[0] != "#section":
                 errmsg = "the column name of the first column in input setup"
                 errmsg += " file should be '#section'"
                 raise Exception(errmsg)
-            t = Tree()
-            l = infile.readline()
-            while l:
+            
+            for l in infile:
                 l = l.strip().split('\t')
-                if len(header) != len(l):
-                    raise Exception("too many/few items on line %s" % l)
-                ## this is for the sake of backward compatibility with 
-                ## existing setup files. 
-                if l[0] == '__OPTIONS__':
-                    l = infile.readline()
+                if len(l) != len(header):
+                    raise Exception("too many/few items in line %s" % l)
+                
+                ## this is for backward compatibility with existing setup files 
+                if l[0] in ('__OPTIONS__', '__GENERAL__'):
                     continue
+                
                 v = evaluate_variable(l[2])
-                t.add_path(t.dict2tree({l[0]:{l[1]:v}}))
-                l = infile.readline()
+                if l[0] == '__SHARED__':
+                    path = {l[0]:{l[1]:v}}
+                else:
+                    path = {l[0]:{'run':{'requirements':{l[1]:v}}}}
+                t.add_path(t.dict2tree(path))
+            
             d = t.todict()
             self.config_dict = self.update_config_dict(d)
     
