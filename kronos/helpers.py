@@ -368,7 +368,7 @@ class Configurer(object):
             self.config_dict = self.update_config_dict(d)                        
 
     def update_shared_section(self, setupfile):
-        """update __GENERAL__ sections using given setup file.
+        """update sections using given setup file.
         
         Parse setupfile into a tree as:
         '__SHARED__':
@@ -394,11 +394,11 @@ class Configurer(object):
                     raise Exception("too many/few items in line %s" % l)
                 
                 ## this is for backward compatibility with existing setup files 
-                if l[0] in ('__OPTIONS__', '__GENERAL__'):
-                    continue
+#                 if l[0] in ('__OPTIONS__'):
+#                     continue
                 
                 v = evaluate_variable(l[2])
-                if l[0] == '__SHARED__':
+                if l[0] in ('__SHARED__', '__GENERAL__'):
                     path = {l[0]:{l[1]:v}}
                 else:
                     path = {l[0]:{'run':{'requirements':{l[1]:v}}}}
@@ -413,7 +413,7 @@ class Configurer(object):
         id_number = 0
         config_dict = OrderedDict()
         config_dict['__PIPELINE_INFO__'] = Configurer._get_info_section_config_dict()
-#         config_dict['__GENERAL__'] = Configurer._get_general_section_config_dict(component_names)
+        config_dict['__GENERAL__'] = Configurer._get_general_section_config_dict(component_names)
         config_dict['__SHARED__'] = {}
         config_dict['__SAMPLES__'] = {}
         for component_name in component_names:
@@ -470,15 +470,15 @@ class Configurer(object):
         section_tree['Kronos_version'] = kronos_version
         return section_tree.todict()
     
-#     @staticmethod
-#     def _get_general_section_config_dict(component_names):
-#         """create the config dict for GENERAL section from the component_reqs."""
-#         all_requirements = {}
-#         for component_name in component_names:
-#             cparser = ComponentParser(component_name)
-#             cparser.parse_reqs()
-#             all_requirements.update(cparser.requirements)
-#         return all_requirements
+    @staticmethod
+    def _get_general_section_config_dict(component_names):
+        """create the config dict for GENERAL section from the component_reqs."""
+        all_requirements = {}
+        for component_name in component_names:
+            cparser = ComponentParser(component_name)
+            cparser.parse_reqs()
+            all_requirements.update(cparser.requirements)
+        return all_requirements
        
     @staticmethod
     def _get_task_section_config_dict(component_name):
@@ -578,8 +578,7 @@ class Configurer(object):
         """sort the sections in the config dict"""
         ## The order that special sections appear in the config file should be preserved.
         ## Also they should appear in the beginning of the config file. 
-#         special_sections = ['__PIPELINE_INFO__', '__GENERAL__', '__SHARED__', '__SAMPLES__']
-        special_sections = ['__PIPELINE_INFO__', '__SHARED__', '__SAMPLES__']
+        special_sections = ['__PIPELINE_INFO__', '__GENERAL__', '__SHARED__', '__SAMPLES__']
         sorted_config_dict = OrderedDict().fromkeys(special_sections)
         sorted_config_dict.update(sorted(config_dict.items()))
         return sorted_config_dict

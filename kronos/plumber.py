@@ -401,6 +401,16 @@ class Plumber(object):
             a = self.input_arguments[t]
             i = self.io_connections[t]
             e = self.wf.nodes[t].env_vars
+            
+            #update task requirements based on the GENERAL requirements
+            reqs = self.wf.nodes[t].requirements
+            for k,v in reqs.iteritems():
+                if not v:
+                    try: 
+                        v = self.wf.general_section[k]
+                        reqs[k] = v
+                    except:
+                        pass 
 
             self._print(message="{0}_component = {1}_main.Component('{1}', component_parent_dir=args.components_dir)".format(t, c))
             self._print(message="{0}_task = Task('{0}', {0}_component)".format(t))
@@ -409,7 +419,7 @@ class Plumber(object):
             self._print(message="{0}_task.update_comp_output_filenames({0}_prefix, rm.outputs_dir, args.no_prefix)".format(t))
             self._print(message="{0}_task.update_comp_env_vars({1})".format(t, e))
 #             self._print(message="{0}_task.update_comp_reqs({1})".format(t, self.wf.general_section))
-            self._print(message="{0}_task.update_comp_reqs({1})".format(t, self.wf.nodes[t].requirements))
+            self._print(message="{0}_task.update_comp_reqs({1})".format(t, reqs))
             self._print(nl=True)
 
 
