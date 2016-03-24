@@ -63,7 +63,7 @@ class ComponentAbstract(object):
         self.env_vars        = self.component_reqs.env_vars
         self.memory          = self.component_reqs.memory
         self.parallel        = self.component_reqs.parallel
-        self.requirements    = self.component_reqs.requirements
+        self.requirements    = self.component_reqs.requirements.copy()
         self.seed_version    = self.component_reqs.seed_version
         self.version         = self.component_reqs.version
 
