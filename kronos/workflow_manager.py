@@ -333,7 +333,7 @@ class Merger(WorkFlowNode):
         t['reserved']['component_version'] = '0.99.0'
         t['run']['forced_dependencies'] = []
         t['component']['input_files'] = {'infiles': None}
-        t['component']['output_files'] = {'out':tag + '.merged'}
+        t['component']['output_files'] = {'out': 'merged/' + tag + '.merged'}
         t['component']['input_params'] = {'extension': None}
 
         super(Merger, self).__init__(t.todict())
