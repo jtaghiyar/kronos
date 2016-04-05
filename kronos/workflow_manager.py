@@ -103,6 +103,11 @@ class WorkFlowNode(object):
         return {leaf[0]:leaf[1] for leaf in leafs if not self._isconnection(leaf[0])}
 
     @property
+    def input_files(self):
+        res = self.properties['component']['input_files']
+        return res
+
+    @property
     def output_files(self):
         res = self.properties['component']['output_files']
         return res
@@ -333,7 +338,7 @@ class Merger(WorkFlowNode):
         t['reserved']['component_version'] = '0.99.0'
         t['run']['forced_dependencies'] = []
         t['component']['input_files'] = {'infiles': None}
-        t['component']['output_files'] = {'out': 'merged/' + tag + '.merged'}
+        t['component']['output_files'] = {'out': 'merge/' + tag + '.merged'}
         t['component']['input_params'] = {'extension': None}
 
         super(Merger, self).__init__(t.todict())
