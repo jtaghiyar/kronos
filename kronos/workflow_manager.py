@@ -250,8 +250,9 @@ class WorkFlowNode(object):
                    for ioc in self.io_connections):
             return False
 
-        # should be removed, not needed.
-        if not self.interval_file and other.interval_file:
+        # interval file takes precedence over the synchronization.
+        # if not self.interval_file and other.interval_file:
+        if self.interval_file:
             return False
         
         if self.parallelized and not len(self.children) == len(other.children):
