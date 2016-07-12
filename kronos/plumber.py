@@ -226,7 +226,11 @@ class Plumber(object):
                 v = [i.start_node + "_component.args." + i.start_param for i in v_list]
                 
                 if len(v) == 1:
-                    v = v[0]
+                    ## make sure merge node always has a list as its input.
+                    if '_MERGER_' in t:
+                        v = '[' + v[0] + ']'
+                    else:
+                        v = v[0]
 
                 ## change the list to a string like '[1,2,...]'
                 else:
