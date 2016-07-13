@@ -42,6 +42,15 @@ Jafar Taghiyar <jafar.taghiyar@gmail.com>.
 
 ## Change log
 
+###2.2.0
+* each task in the configuration file now has its own _requirements_ entry in the _run_ subsection which takes precedence over the requirements listed in the _GENERAL_ section. This enables users to have different versions of the same requirements for different tasks.
+* interval file now takes precedence over the synchronization, i.e. if a task has an interval file, then it will not be synchronized with its predecessors. 
+* added support for floating point memory requests.
+* made all the merged files to store in a directory called _merge_.
+* username and version are automatically added to the config files when using _make_config_ command.
+* added a check to make sure that the input of the implicit merge node is always a list.
+* bug fixes.
+
 ###2.1.0
 * Kronos now uses multithreading instead of multiprocessing.
 
