@@ -4,4 +4,4 @@ Created on Nov 25, 2014
 @author: jtaghiyar
 '''
 
-kronos_version = "2.1.0"
+kronos_version = "2.2.0"
