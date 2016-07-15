@@ -69,6 +69,7 @@ class WorkFlowNode(object):
         self.chunk = None
         self.parent = None
         self.children = []
+        self._children_tags = []
         self.parallelized = False
         
     def __eq__(self, other):
@@ -164,13 +165,27 @@ class WorkFlowNode(object):
     
     @property
     def chunks(self):
-        if not self.parallel_run:
-            chunks = []
-        elif self.interval_file is not None and self.interval_file != 'None':
+        chunks = []
+        self._children_tags = []
+        if self.interval_file is not None and self.interval_file != 'None':
             lines = open(self.interval_file, 'r').readlines()
-            chunks = [l.strip() for l in lines]
+            for l in lines:
+                x = l.strip().split('\t')
+                if len(x) == 1:
+                    c = x[0]
+                    t = ''
+                elif len(x) == 2:
+                    c = x[0]
+                    t = x[1]
+                else:
+                    msg = "Invalid line in the interval file of node '{0}': '{1}'"
+                    msg = msg.format(self.tag, l)
+                    raise Exception(msg)
+                chunks.append(c)
+                self._children_tags.append(t)
         else:
             chunks = map(str, range(1,23)) + ['X','Y']
+            self._children_tags = ['' for i in range(len(chunks))]
         return chunks
 
     @property
@@ -266,7 +281,7 @@ class WorkFlowNode(object):
             return 
         for i, chunk in enumerate(self.chunks):
             newn = self.copy()
-            newn.tag = self.tag + '_%s_' % (i + 1)
+            newn.tag = self.tag + '_%s_' % (i + 1) + self._children_tags[i]
             newn.parent = self
             newn.chunk = chunk
             newn.forced_dependencies = self.forced_dependencies
@@ -384,11 +399,13 @@ class Paralleler(object):
     parallelize/synchronize a node.
     """
     
-    def expand(self, node, number_of_children):
+    def expand(self, node, number_of_children, children_tags=None):
         """spawn children nodes."""
+        if not children_tags:
+            children_tags = node._children_tags
         for i in range(number_of_children):
             newn = node.copy()
-            newn.tag = node.tag + '%s_' % i
+            newn.tag = node.tag + '%s_' % i + children_tags[i]
             newn.parent = node
             newn.chunk = node.chunks[i]
             newn.forced_dependencies = node.forced_dependencies
@@ -402,7 +419,7 @@ class Paralleler(object):
         if not already parallelized, and update its children's io_connections.
         """
         if not node.parallelized:
-            node = self.expand(node, len(p.children))
+            node = self.expand(node, len(p.children), p._children_tags)
         self._update_children_io_connections(node, p, param)
         node.parallelized = True       
         return node
