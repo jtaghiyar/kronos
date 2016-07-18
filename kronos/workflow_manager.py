@@ -65,13 +65,15 @@ class WorkFlowNode(object):
         self._ps = Tree.dict2tree(config_dict)
         self._fd = None
         self._iocs = None
+        self._children_tags = []
+        self._chunks = []
         self.tag = None
         self.chunk = None
         self.parent = None
         self.children = []
-        self._children_tags = []
         self.parallelized = False
-        
+        self.merged_path = None
+
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
@@ -165,29 +167,12 @@ class WorkFlowNode(object):
     
     @property
     def chunks(self):
-        chunks = []
-        self._children_tags = []
-        if self.interval_file is not None and self.interval_file != 'None':
-            lines = open(self.interval_file, 'r').readlines()
-            for l in lines:
-                x = l.strip().split('\t')
-                if len(x) == 1:
-                    c = x[0]
-                    t = ''
-                elif len(x) == 2:
-                    c = x[0]
-                    t = x[1]
-                else:
-                    msg = "Invalid line in the interval file of node '{0}': '{1}'"
-                    msg = msg.format(self.tag, l)
-                    raise Exception(msg)
-                chunks.append(c)
-                self._children_tags.append(t)
-        else:
-            chunks = map(str, range(1,23)) + ['X','Y']
-            self._children_tags = ['' for i in range(len(chunks))]
-        return chunks
+        return self._chunks 
 
+    @property
+    def children_tags(self):
+        return self._children_tags
+    
     @property
     def forced_dependencies(self):
         if self._fd is not None:
@@ -279,9 +264,10 @@ class WorkFlowNode(object):
         """spawn children nodes."""
         if not self.parallel_run or self.parallelized:
             return 
+        self._parse_interval()
         for i, chunk in enumerate(self.chunks):
             newn = self.copy()
-            newn.tag = self.tag + '_%s_' % (i + 1) + self._children_tags[i]
+            newn.tag = self.tag + '%s_' % (i + 1) + self.children_tags[i]
             newn.parent = self
             newn.chunk = chunk
             newn.forced_dependencies = self.forced_dependencies
@@ -292,6 +278,29 @@ class WorkFlowNode(object):
         """remove children."""
         self.children = []
         self.parallelized = False
+
+    def _parse_interval(self):
+        self._chunks = []
+        self._children_tags = []
+        if self.interval_file is not None and self.interval_file != 'None':
+            lines = open(self.interval_file, 'r').readlines()
+            for l in lines:
+                x = l.strip().split('\t')
+                if len(x) == 1:
+                    c = x[0]
+                    t = ''
+                elif len(x) == 2:
+                    c = x[0]
+                    t = x[1]
+                else:
+                    msg = "Invalid line in the interval file of node '{0}': '{1}'"
+                    msg = msg.format(self.tag, l)
+                    raise Exception(msg)
+                self._chunks.append(c)
+                self._children_tags.append(t)
+        else:
+            self._chunks = map(str, range(1,23)) + ['X','Y']
+            self._children_tags = ['' for i in range(len(self._chunks))]
 
     def _isconnection(self, arg):
         for ioc in self.io_connections:
@@ -381,8 +390,6 @@ class Merger(WorkFlowNode):
         else: 
             self._node.io_connections = self._update_ioc(self._node.io_connections, startn, startp, stopp)
         
-        return self._node
-
     def _update_ioc(self, io_connections, start_node, start_param, stop_param):
         iocs = []
         for ioc in io_connections:
@@ -396,22 +403,8 @@ class Merger(WorkFlowNode):
 class Paralleler(object):
  
     """
-    parallelize/synchronize a node.
+    Paralleler assists with synchronizing a node to its predecessor.
     """
-    
-    def expand(self, node, number_of_children, children_tags=None):
-        """spawn children nodes."""
-        if not children_tags:
-            children_tags = node._children_tags
-        for i in range(number_of_children):
-            newn = node.copy()
-            newn.tag = node.tag + '%s_' % i + children_tags[i]
-            newn.parent = node
-            newn.chunk = node.chunks[i]
-            newn.forced_dependencies = node.forced_dependencies
-            node.children.append(newn)
-        node.parallelized = True  
-        return node
     
     def synchronize(self, node, p, param):
         """
@@ -419,10 +412,17 @@ class Paralleler(object):
         if not already parallelized, and update its children's io_connections.
         """
         if not node.parallelized:
-            node = self.expand(node, len(p.children), p._children_tags)
+            for i in range(len(p.children)):
+                newn = node.copy()
+                # the node's children will inherit the p's children tags.
+                node._children_tags = p.children_tags
+                newn.tag = node.tag + '%s_' % (i + 1) + node.children_tags[i]
+                newn.parent = node
+                newn.forced_dependencies = node.forced_dependencies
+                node.children.append(newn)
+
         self._update_children_io_connections(node, p, param)
         node.parallelized = True       
-        return node
 
     def _update_children_io_connections(self, node, p, param):
         """update the io_connections of node's children from p via param"""
@@ -563,7 +563,8 @@ class WorkFlow(object):
         self.inflated = True  
      
     def _unfold(self, node):
-        ## synchronization happens only for dependencies via io_connections.
+        ## synchronization happens here and only for dependencies 
+        ## via io_connections.
         paralleler = Paralleler()
         for ioc in node.io_connections:
             p = self.nodes[ioc.start_node]
@@ -571,18 +572,16 @@ class WorkFlow(object):
             if not p.parallelized:
                 continue
             if node.issyncable(p, param):
-                n = paralleler.synchronize(node, p, param)
+                paralleler.synchronize(node, p, param)
             else:
                 m = Merger(node, p, ioc)
-                n = m.update_io_connections()
+                m.update_io_connections()
                 self.add_node(m.tag, m)
         
         ## expand the node if it is not syncable with any of its predecessors.
         if node.parallel_run and not node.parallelized:
-            n = paralleler.expand(node, len(node.chunks))
-        else:
-            n = node
-        return n
+            node.expand()
+        return node
 
     def _update_forced_dependencies(self):
         """update forced_dependencies."""
