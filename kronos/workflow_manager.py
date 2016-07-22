@@ -77,6 +77,9 @@ class WorkFlowNode(object):
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+    def __repr__(self):
+        return str(type(self)) + ": " + self.tag
+
     @property
     def properties(self):
         return self._ps
@@ -169,7 +172,7 @@ class WorkFlowNode(object):
     def merge(self):
         res = self.properties['run']['merge']
         return True if isinstance(res, bool) and res else False
-    
+
     @property
     def chunks(self):
         return self._chunks 
@@ -201,11 +204,6 @@ class WorkFlowNode(object):
                for arg, tag, param, _ in self._iterate_tuple_leafs()
                if '__SAMPLES__' in tag]
         return sorted(scs)
-#     
-#     @property
-#     def sample_connection_paths(self):
-#         args = [sc.stop_param for sc in self.sample_connections]
-#         return [p for p in self.properties.paths if p.leafs[0][0] in args]
 
     @property
     def io_connections(self):
@@ -231,13 +229,19 @@ class WorkFlowNode(object):
         return [Connection(tag, param, self.tag, arg, path)
                 for arg, tag, param, path in self._iterate_tuple_leafs()]
     
-    def copy(self):
+    def copy(self, tag):
         """make a copy."""
         other = WorkFlowNode(self.config_dict)
-        if self._iocs is not None:
-            other.io_connections = self._iocs[:]
+        other.tag = tag
+        ## copy forced_dependencies.
         if self._fd is not None:
             other.forced_dependencies = self._fd[:]
+        ## copy io_connections and replace self.tag with other.tag.
+        if self._iocs is not None:
+            other.io_connections = self._iocs[:]
+            for ioc in other.io_connections:
+                if ioc.stop_node == self.tag:
+                    ioc.stop_node = other.tag
         return other
 
     def issyncable(self, other, param):
@@ -271,8 +275,8 @@ class WorkFlowNode(object):
             return 
         self._parse_interval()
         for i, chunk in enumerate(self.chunks):
-            newn = self.copy()
-            newn.tag = self.tag + '%s_' % (i + 1) + self.children_tag_suffixes[i]
+            tag = self.tag + '%s_' % (i + 1) + self.children_tag_suffixes[i]
+            newn = self.copy(tag)
             newn.parent = self
             newn.chunk = chunk
             newn.forced_dependencies = self.forced_dependencies
@@ -418,10 +422,10 @@ class Paralleler(object):
         """
         if not node.parallelized:
             for i in range(len(p.children)):
-                newn = node.copy()
                 # the node's children will inherit the p's children tags.
                 node._children_tag_suffixes = p.children_tag_suffixes
-                newn.tag = node.tag + '%s_' % (i + 1) + node.children_tag_suffixes[i]
+                tag = node.tag + '_%s_' % (i + 1) + node.children_tag_suffixes[i]
+                newn = node.copy(tag)
                 newn.parent = node
                 newn.forced_dependencies = node.forced_dependencies
                 node.children.append(newn)
