@@ -54,6 +54,32 @@ class IOConnection(object):
     def copy(self):
         return IOConnection(**self.__dict__)
         
+    def fromtags_bystartnode(self, tags):
+        """create a list of new IOConnections by replacing the start_node
+        with the given list of tags.
+        """
+        return [IOConnection(
+            start_node=tag,
+            start_param=self.start_param,
+            stop_node=self.stop_node,
+            stop_param=self.stop_param
+            )
+        for tag in tags
+        ]
+
+    def fromtags_bystopnode(self, tags):
+        """create a list of new IOConnections by replacing the stop_node
+        with the given list of tags.
+        """
+        return [IOConnection(
+            start_node=self.start_node,
+            start_param=self.start_param,
+            stop_node=tag,
+            stop_param=self.stop_param
+            )
+        for tag in tags
+        ]
+
 
 class WorkFlowNode(object):
     """
