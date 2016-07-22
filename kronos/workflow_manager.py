@@ -65,7 +65,7 @@ class WorkFlowNode(object):
         self._ps = Tree.dict2tree(config_dict)
         self._fd = None
         self._iocs = None
-        self._children_tags = []
+        self._children_tag_suffixes = []
         self._chunks = []
         self.tag = None
         self.chunk = None
@@ -170,8 +170,8 @@ class WorkFlowNode(object):
         return self._chunks 
 
     @property
-    def children_tags(self):
-        return self._children_tags
+    def children_tag_suffixes(self):
+        return self._children_tag_suffixes
     
     @property
     def forced_dependencies(self):
@@ -267,7 +267,7 @@ class WorkFlowNode(object):
         self._parse_interval()
         for i, chunk in enumerate(self.chunks):
             newn = self.copy()
-            newn.tag = self.tag + '%s_' % (i + 1) + self.children_tags[i]
+            newn.tag = self.tag + '%s_' % (i + 1) + self.children_tag_suffixes[i]
             newn.parent = self
             newn.chunk = chunk
             newn.forced_dependencies = self.forced_dependencies
@@ -281,7 +281,7 @@ class WorkFlowNode(object):
 
     def _parse_interval(self):
         self._chunks = []
-        self._children_tags = []
+        self._children_tag_suffixes = []
         if self.interval_file is not None and self.interval_file != 'None':
             lines = open(self.interval_file, 'r').readlines()
             for l in lines:
@@ -297,10 +297,10 @@ class WorkFlowNode(object):
                     msg = msg.format(self.tag, l)
                     raise Exception(msg)
                 self._chunks.append(c)
-                self._children_tags.append(t)
+                self._children_tag_suffixes.append(t)
         else:
             self._chunks = map(str, range(1,23)) + ['X','Y']
-            self._children_tags = ['' for i in range(len(self._chunks))]
+            self._children_tag_suffixes = ['' for i in range(len(self._chunks))]
 
     def _isconnection(self, arg):
         for ioc in self.io_connections:
@@ -415,8 +415,8 @@ class Paralleler(object):
             for i in range(len(p.children)):
                 newn = node.copy()
                 # the node's children will inherit the p's children tags.
-                node._children_tags = p.children_tags
-                newn.tag = node.tag + '%s_' % (i + 1) + node.children_tags[i]
+                node._children_tag_suffixes = p.children_tag_suffixes
+                newn.tag = node.tag + '%s_' % (i + 1) + node.children_tag_suffixes[i]
                 newn.parent = node
                 newn.forced_dependencies = node.forced_dependencies
                 node.children.append(newn)
