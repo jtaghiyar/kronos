@@ -5,6 +5,7 @@ Created on Sep 9, 2014
 """
 
 import sys
+import copy
 from helpers import *
 from warnings import warn
 
@@ -275,7 +276,7 @@ class WorkFlowNode(object):
             return 
         self._parse_interval()
         for i, chunk in enumerate(self.chunks):
-            tag = self.tag + '%s_' % (i + 1) + self.children_tag_suffixes[i]
+            tag = self.tag + '_%s_' % (i + 1) + self.children_tag_suffixes[i]
             newn = self.copy(tag)
             newn.parent = self
             newn.chunk = chunk
@@ -550,10 +551,9 @@ class WorkFlow(object):
     
     def deflate(self):
         """cancel parallelization."""
-        self._nodes = self._folded_nodes.copy()
+        self._nodes = copy.deepcopy(self._folded_nodes)
         for node in self.nodes.values():
-            node.children = []
-            node.parallelized = False
+            node.compress()
         self.inflated = False
  
     def inflate(self):
@@ -629,7 +629,7 @@ class WorkFlow(object):
                 node = WorkFlowNode(v)
                 node.tag = k
                 self._nodes[k] = node
-                self._folded_nodes[k] = node
+                self._folded_nodes[k] = node.copy(k)
             elif k == '__GENERAL__':
                 self._general_section = v
             elif k == '__SHARED__':
