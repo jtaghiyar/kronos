@@ -289,6 +289,24 @@ class WorkFlowNode(object):
         self.children = []
         self.parallelized = False
 
+    def add_ioc(self, io_connection):
+        """add the io_connection."""
+        if not isinstance(io_connection, IOConnection):
+            warn("input is not an instance of type IOConnection.")
+            return
+        iocs = []
+        iocs.append(io_connection)
+        iocs.extend(self.io_connections)
+        self.io_connections = iocs
+
+    def remove_ioc(self, io_connection):
+        """remove the io_connection."""
+        if not isinstance(io_connection, IOConnection):
+            warn("input is not an instance of type IOConnection.")
+            return
+        self.io_connections = [ioc for ioc in self.io_connections
+        if not ioc == io_connection]
+
     def _parse_interval(self):
         self._chunks = []
         self._children_tag_suffixes = []
