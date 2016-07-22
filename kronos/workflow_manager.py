@@ -164,6 +164,11 @@ class WorkFlowNode(object):
     def breakpoint(self):
         res = self.properties['run']['add_breakpoint']
         return True if isinstance(res, bool) and res else False
+
+    @property
+    def merge(self):
+        res = self.properties['run']['merge']
+        return True if isinstance(res, bool) and res else False
     
     @property
     def chunks(self):

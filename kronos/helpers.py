@@ -498,6 +498,7 @@ class Configurer(object):
         section_tree['run']['add_breakpoint'] = False
         section_tree['run']['env_vars'] = cparser.env_vars
         section_tree['run']['boilerplate'] = None
+        section_tree['run']['merge'] = False
         section_tree['component']['input_files'] = cparser.input_files
         section_tree['component']['output_files'] = cparser.output_files
         section_tree['component']['parameters'] = cparser.input_params
