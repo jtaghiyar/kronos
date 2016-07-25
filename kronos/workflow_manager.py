@@ -405,9 +405,9 @@ class Merger(WorkFlowNode):
     make a merger node, update the io_connections accordingly and run the 'merge' component.
     """
     
-    def __init__(self, node, p, ioc):
+    def __init__(self, p, ioc):
         t = Tree()
-        tag = '_'.join([p.tag, ioc.start_param, 'MERGER', node.tag, ioc.stop_param])
+        tag = '_'.join([p.tag, ioc.start_param, '_MERGER__'])
         t['reserved']['component_name'] = 'merge'
         t['run']['use_cluster'] = p.use_cluster
         t['run']['memory'] = '10G'
@@ -422,34 +422,36 @@ class Merger(WorkFlowNode):
         t['component']['input_params'] = {'extension': None}
 
         super(Merger, self).__init__(t.todict())
-        self._node = node
-        self._ioc = ioc  
-        self.tag = tag      
-        self.io_connections = [IOConnection(child.tag, ioc.start_param, self.tag, 'infiles')
-                               for child in p.children]
+        self.io_connections = [IOConnection(
+            child.tag,
+            ioc.start_param,
+            tag,
+            'infiles'
+            )
+        for child in p.children]
+        self.tag = tag
+        self.p = p
+        self.ioc = ioc
 
-    def update_io_connections(self):
+    def update_io_connections(self, node):
         """add the merger node to the io_connections of the node"""
-        startn = self._ioc.start_node
-        startp = self._ioc.start_param
-        stopp  = self._ioc.stop_param
-
-        ## if node.parallelized, only update its children's io_connections
-        if self._node.parallelized:
+        ## if node.parallelized, only update its children's io_connections.
+        if node.parallelized:
             children = []
-            for child in self._node.children:
-                iocs = self._update_ioc(child.io_connections, startn, startp, stopp)
+            for child in node.children:
+                iocs = self._update_ioc(child.io_connections)
                 child.io_connections = iocs
                 children.append(child)
-            self._node.children = children
+            node.children = children
         else: 
-            self._node.io_connections = self._update_ioc(self._node.io_connections, startn, startp, stopp)
+            node.io_connections = self._update_ioc(node.io_connections)
         
-    def _update_ioc(self, io_connections, start_node, start_param, stop_param):
+    def _update_ioc(self, io_connections):
         iocs = []
         for ioc in io_connections:
-                if ioc.start_node == start_node and ioc.start_param == start_param\
-                and ioc.stop_param == stop_param:
+                if ioc.start_node == self.ioc.start_node and \
+                ioc.start_param == self.ioc.start_param and \
+                ioc.stop_param == self.ioc.stop_param:
                     ioc.start_node = self.tag
                     ioc.start_param = 'out'
                 iocs.append(ioc)
@@ -556,7 +558,7 @@ class WorkFlow(object):
         all_deps = reduce(lambda x,y: x + y, [n.dependencies for n in self.nodes.values()])
         leafs = set(tags).difference(set(all_deps))
         return list(leafs)
-    
+
     def add_node(self, tag, node):
         """add a new node."""
         self._nodes[tag] = node
@@ -629,8 +631,8 @@ class WorkFlow(object):
             if node.issyncable(p, param):
                 paralleler.synchronize(node, p, param)
             elif p.merge:
-                m = Merger(node, p, ioc)
-                m.update_io_connections()
+                m = Merger(p, ioc)
+                m.update_io_connections(node)
                 self.add_node(m.tag, m)
             else:
                 msg = "Implicit merge is off for task '%s'." % p.tag
