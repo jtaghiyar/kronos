@@ -53,7 +53,7 @@ class IOConnection(object):
         
     def copy(self):
         return IOConnection(**self.__dict__)
-        
+
     def fromtags_bystartnode(self, tags):
         """create a list of new IOConnections by replacing the start_node
         with the given list of tags.
@@ -82,6 +82,7 @@ class IOConnection(object):
 
 
 class WorkFlowNode(object):
+
     """
     WorkFlowNode class represents a node in a WorkFlow object,
     which is equivalent to a section in a factory config file.
@@ -262,10 +263,10 @@ class WorkFlowNode(object):
         other.tag = tag
         ## copy forced_dependencies.
         if self._fd is not None:
-            other.forced_dependencies = self._fd[:]
+            other.forced_dependencies = copy.deepcopy(self._fd)
         ## copy io_connections and replace self.tag with other.tag.
         if self._iocs is not None:
-            other.io_connections = self._iocs[:]
+            other.io_connections = copy.deepcopy(self._iocs)
             for ioc in other.io_connections:
                 if ioc.stop_node == self.tag:
                     ioc.stop_node = other.tag
@@ -452,7 +453,8 @@ class Merger(WorkFlowNode):
                     ioc.start_node = self.tag
                     ioc.start_param = 'out'
                 iocs.append(ioc)
-        return iocs            
+        return iocs
+
 
 class Paralleler(object):
  
@@ -610,7 +612,7 @@ class WorkFlow(object):
                 n = self._unfold(node)
                 for child in n.children:
                     self.add_node(child.tag, child)
-            
+
         self._update_forced_dependencies()          
         self._trim()
         self.inflated = True  
@@ -630,7 +632,7 @@ class WorkFlow(object):
                 m = Merger(node, p, ioc)
                 m.update_io_connections()
                 self.add_node(m.tag, m)
-        
+
         ## expand the node if it is not syncable with any of its predecessors.
         if node.parallel_run and not node.parallelized:
             node.expand()
