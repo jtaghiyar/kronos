@@ -628,10 +628,22 @@ class WorkFlow(object):
                 continue
             if node.issyncable(p, param):
                 paralleler.synchronize(node, p, param)
-            else:
+            elif p.merge:
                 m = Merger(node, p, ioc)
                 m.update_io_connections()
                 self.add_node(m.tag, m)
+            else:
+                msg = "Implicit merge is off for task '%s'." % p.tag
+                msg += "You may have to use an explicit merge task."
+                warn(msg)
+                ## replace node's ioc from p with a list of io_connections
+                ## from p.children.
+                new_iocs = ioc.fromtags_bystartnode(
+                    [c.tag for c in p.children]
+                    )
+                node.remove_ioc(ioc)
+                new_iocs.extend(node.io_connections)
+                node.io_connections = sorted(new_iocs)
 
         ## expand the node if it is not syncable with any of its predecessors.
         if node.parallel_run and not node.parallelized:
