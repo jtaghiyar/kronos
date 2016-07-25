@@ -633,7 +633,9 @@ class WorkFlow(object):
             elif p.merge:
                 m = Merger(p, ioc)
                 m.update_io_connections(node)
-                self.add_node(m.tag, m)
+                ## add the new Merger node if it doesn't already exist.
+                if not self.nodes.get(m.tag):
+                    self.add_node(m.tag, m)
             else:
                 msg = "Implicit merge is off for task '%s'." % p.tag
                 msg += "You may have to use an explicit merge task."
