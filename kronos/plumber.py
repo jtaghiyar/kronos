@@ -48,6 +48,7 @@ class Plumber(object):
         import_pymod   = {
                           'os' :[],
                           'sys' :[],
+                          'time' :[],
                           'ruffus' :[],
                           'traceback' :[],
                           'multiprocessing' :['Queue'],
@@ -325,7 +326,8 @@ class Plumber(object):
                              "{nl}").format(ind=indent, nl=newline)
             else:
                 func_str += ("{ind}run_script = rm.generate_script({0}_task, {1}, {2}){nl}"
-                             "{ind}job_name = rm.get_filename_prefix(task_name)"
+                             "{ind}job_name = rm.get_filename_prefix(task_name){nl}"
+                             "{ind}time.sleep(1)"
                              "{nl}").format(t, chunk, bp, ind=indent, nl=newline)
 
             func_str += self._get_exception_handler(t)
