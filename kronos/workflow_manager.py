@@ -637,7 +637,7 @@ class WorkFlow(object):
                 if not self.nodes.get(m.tag):
                     self.add_node(m.tag, m)
             else:
-                msg = "Implicit merge is off for task '%s'." % p.tag
+                msg = "Implicit merge is off for task '%s'. " % p.tag
                 msg += "You may have to use an explicit merge task."
                 warn(msg)
                 ## replace node's ioc from p with a list of io_connections

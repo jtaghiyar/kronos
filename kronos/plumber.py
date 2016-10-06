@@ -412,11 +412,11 @@ class Plumber(object):
             reqs = self.wf.nodes[t].requirements
             for k,v in reqs.iteritems():
                 if not v:
-                    try: 
-                        v = self.wf.general_section[k]
-                        reqs[k] = v
-                    except:
-                        pass 
+                    reqs[k] = self.wf.general_section.get(k)
+
+            #update requirements of implicit merge
+            if '__MERGER__' in t:
+                reqs = self.wf.general_section
 
             self._print(message="{0}_component = {1}_main.Component('{1}', component_parent_dir=args.components_dir)".format(t, c))
             self._print(message="{0}_task = Task('{0}', {0}_component)".format(t))
