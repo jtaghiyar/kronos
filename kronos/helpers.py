@@ -651,7 +651,7 @@ def validate_argument(arg, param, component_name):
 def make_dir(dirname):
     """make a directory if not exists."""
     if not os.path.exists(dirname):
-        os.mkdir(dirname)
+        os.makedirs(dirname)
 
 
 def trim(d, prepended_msg):
