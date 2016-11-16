@@ -13,6 +13,7 @@ from workflow_manager import WorkFlow, WorkFlowManager
 from plumber import Plumber
 from string import Template
 from tempfile import NamedTemporaryFile as ntf
+from distutils.spawn import find_executable
 import logging
 
 logging.basicConfig(format='%(asctime)s %(message)s', 
@@ -77,10 +78,10 @@ class Factory(object):
                                                      self.args.pipeline_name + '.py')
         
         ## TODO: check if the -k input has been generated with kronos.
-        cmd = "{python_installation} {kronos_pipeline} -b {job_scheduler} "
+        cmd = "{python} {kronos_pipeline} -b {job_scheduler} "
         cmd += "-c {components_dir} -d {drmaa_library_path} -j {num_jobs} "
         cmd += "-n {num_pipelines} -p {python_installation} -w {working_dir}"
-        cmd = cmd.format(**vars(self.args))
+        cmd = cmd.format(python=find_executable("python"), **vars(self.args))
         if self.args.qsub_options:
             cmd += " -q '%s'" % (self.args.qsub_options)
         if self.args.run_id:
