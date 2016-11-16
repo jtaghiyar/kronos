@@ -11,6 +11,8 @@ from random import randint
 from time import sleep
 import re
 
+QCMD_PREFIX = ''
+
 class DrmaaJob(object):
     
     """
@@ -215,7 +217,12 @@ class SgeJob(object):
                      }
         cmd_args = ' '.join(map(str, cmd_args))
         self.qopt = qsub_options.format(**input_opt)
-        self.qcmd = 'qsub {0} {1} {2}'.format(self.qopt, cmd, cmd_args)
+        self.qcmd = '{0} {1} {2} {3}'.format(
+            os.path.join(QCMD_PREFIX,'qsub'),
+            self.qopt,
+            cmd,
+            cmd_args
+            )
         self.job_name = job_name
     
 class SgeJobManager(object):
@@ -295,7 +302,7 @@ class SgeJobManager(object):
     
     @staticmethod
     def kill_job(job_id):
-        kill_cmd = 'qdel %s' % (job_id)
+        kill_cmd = '%s %s' % (os.path.join(QCMD_PREFIX,'qdel'), job_id)
         os.system(kill_cmd)
         
     def kill_all(self):
@@ -307,14 +314,14 @@ class SgeJobManager(object):
     @staticmethod
     def isinqueue(job_id):
         """check if the job_id is in queue regardless of its state."""
-        cmd = 'qstat -j %s' % (job_id)
+        cmd = '%s -j %s' % (os.path.join(QCMD_PREFIX,'qstat'), job_id)
         proc = sub.Popen(cmd, stdout=sub.PIPE, stderr=sub.PIPE, shell=True)
         out, err = proc.communicate()
         return True if proc.returncode == 0 else False
             
     @staticmethod        
     def qacct(job_id):
-        cmd = 'qacct -j %s' % (job_id)
+        cmd = '%s -j %s' % (os.path.join(QCMD_PREFIX,'qacct'), job_id)
         proc = sub.Popen(cmd, stdout=sub.PIPE, stderr=sub.PIPE, shell=True)
         out, err = proc.communicate()
         if proc.returncode == 0:
